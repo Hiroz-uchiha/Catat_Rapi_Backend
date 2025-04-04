@@ -9,14 +9,14 @@ const todolistSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    updateAt: {
-        type: Date,
-        default: Date.now
-    },
     createdBy : {
         type : mongoose.Schema.Types.ObjectId,
         ref : "UserSchema"
     }
-});
+},
+    {
+        timestamps: true
+    }
+);
 
 module.exports = mongoose.model("Todolist", todolistSchema);
