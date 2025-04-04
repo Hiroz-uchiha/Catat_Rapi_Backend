@@ -3,41 +3,29 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 
-// Validate Environment Variables
+// Validasi Environment Variables
 if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL is missing in .env");
+  throw new Error("DATABASE_URL tidak ditemukan di .env");
 }
 
 const app = express();
 
 // Enhanced CORS Configuration
 const allowedOrigins = [
-  'http://localhost:3000', // Local development
-  'https://catat-rapi-frontend.vercel.app' // Your production frontend URL
+  'http://localhost:3000',
+  'https://catat-rapi-frontend.vercel.app'
 ];
 
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.warn(`Blocked by CORS: ${origin}`);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+// Middleware
+app.use(cors({
+  origin: allowedOrigins,
+  methods: ['GET', 'POST', 'PATCH', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
-  optionsSuccessStatus: 200 // For legacy browser support
-};
+  credentials: true
+}));
 
-// Apply Middleware
-app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Preflight Handler
-// app.options('*', cors(corsOptions));
 
 // Database Connection
 async function connectDB() {
@@ -54,57 +42,54 @@ async function connectDB() {
 }
 connectDB();
 
-// Route Imports
+// Routes
 const TodolistRouting = require("./Controller/TodolistRouting");
 const userRoutes = require("./Controller/Authorization/RegisterRouting");
 
-// Health Check Route
+// Root Route
 app.get("/", (req, res) => {
   res.json({
     status: "Backend is running",
-    timestamp: new Date().toISOString(),
-    endpoints: {
+    message: "Selamat datang di Catat Rapi API",
+    available_endpoints: {
       todo: "/todo",
       user: "/user"
     },
     cors: {
-      allowedOrigins,
-      status: "enabled"
+      allowed_origins: allowedOrigins,
+      methods: ['GET', 'POST', 'PATCH', 'DELETE']
     }
   });
 });
 
-// API Routes
+// Mount Routes
 app.use("/todo", TodolistRouting);
 app.use("/user", userRoutes);
 
-// Enhanced Error Handling
+// Error Handling Middleware
 app.use((err, req, res, next) => {
-  console.error(`[${new Date().toISOString()}] Error:`, err.stack);
+  console.error(err.stack);
   
   if (err.message === 'Not allowed by CORS') {
-    return res.status(403).json({
-      error: "CORS Policy Violation",
-      message: "Your origin is not permitted",
-      allowedOrigins,
-      yourOrigin: req.get('origin') || 'undefined'
+    return res.status(403).json({ 
+      error: 'Akses ditolak',
+      allowed_origins: allowedOrigins 
     });
   }
-
-  res.status(500).json({
-    error: "Internal Server Error",
+  
+  res.status(500).json({ 
+    error: 'Terjadi kesalahan server',
     message: process.env.NODE_ENV === 'development' 
       ? err.message 
-      : 'Please try again later'
+      : 'Silakan coba lagi nanti'
   });
 });
 
 // Server
 const PORT = process.env.PORT || 3001;
-const server = app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Allowed origins:`, allowedOrigins);
+app.listen(PORT, () => {
+  console.log(`Server berjalan di http://localhost:${PORT}`);
+  console.log('Allowed Origins:', allowedOrigins);
 });
 
-// Export for testing
-module.exports = { app, server };
+module.exports = app;
