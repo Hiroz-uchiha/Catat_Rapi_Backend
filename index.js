@@ -18,7 +18,7 @@ const userRoutes = require("./Controller/Authorization/RegisterRouting")
 mongoose.connect(mongoString);
 const db = mongoose.connection;
 
-db.once("connnected",() => {
+db.once("connected",() => {
     console.log("Database Connected");
 })
 
@@ -31,6 +31,9 @@ app.use("/uploads", express.static(path.join(__dirname,"uploads")))
 app.use("/images",GambarRouting)
 app.use("/user",userRoutes)
 
-app.listen(3001,() => {
-    console.log("Server sudah berjalan")
+const PORT = process.env.PORT || 3001
+app.listen(PORT,() => {
+    console.log("Server sudah berjalan di port " + PORT)
 })
+
+module.exports = app
