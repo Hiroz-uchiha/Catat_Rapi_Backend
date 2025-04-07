@@ -4,6 +4,7 @@ const GambarSchema = require("../Schema/GambarSchema")
 const fs = require("fs")
 const path = require("path")
 const rute = express.Router();
+const verifyToken = require("./Authorization/jwt");
 
 
 const storage = multer.diskStorage({
@@ -14,9 +15,9 @@ const upload = multer({storage})
 
 
 // Ambil semua gambar
-rute.get("/", async(req,res) => {
+rute.get("/", verifyToken ,async(req,res) => {
     try{
-        const images = await GambarSchema.find();
+        const images = await GambarSchema.find({createdBy :req.user._id}).lean();
         res.status(200).json(images)
     }catch(err){
         res.status(500).json({err})
@@ -24,15 +25,17 @@ rute.get("/", async(req,res) => {
 })
 
 //Upload Gambar
-rute.post("/", upload.single("gambar"), async(req,res) => {
+rute.post("/", upload.single("gambar"),verifyToken, async(req,res) => {
     if(!req.file) {
         return res.status(400).json({message : "Tidak ada data yang diupload"})
     }
 
     try{
+        const userId = req.user._id
         const newImage = await GambarSchema.create({
             filename : req.file.filename,
-            url : `http://localhost:3001/uploads/${req.file.filename}`
+            url : `http://localhost:3001/uploads/${req.file.filename}`,
+            createdBy : userId
         })
         res.status(201).json(newImage)
     }catch(err){

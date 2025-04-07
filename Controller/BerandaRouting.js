@@ -7,21 +7,20 @@ const verifyToken = require("./Authorization/jwt");
 
 rute.get("/",verifyToken,async(req,res) => {
     try{
-        console.log("User ID : ", req.user ? req.user._id : "User not found")
-
         const userId = req.user ? req.user._id : null;
 
         // Ambil semua gambar dan todolist dari user
-        const gambar = await gambarSchema.find().lean();
+        const gambar = await gambarSchema.find({createdBy : userId}).lean();
         const todolist = await todolistSchema.find({createdBy:userId}).lean();
 
-        console.log("Gambar : ", gambar)
-        console.log("Todolist : ", todolist)
+        // console.log("Gambar : ", gambar)
+        // console.log("Todolist : ", todolist)
         // Gabungkan 2 array
-        const berandaData = [...gambar, ...todolist];
+        const berandaData = [...gambar, ...todolist].sort((a,b) => {
+            return new Date(b.createdAt) - new Date(a.createdAt)
+        }) ;
 
-        // Urutkan berdasarkan createdAt
-        // berandaData.sort((a,b) => new Date(a.createdAt) - new Date(b.createdAt) )
+
         res.status(200).json(berandaData)
     }catch(err){
         res.status(500).json(err)
