@@ -5,7 +5,7 @@ const rute = express.Router()
 const verifyToken = require("./Authorization/jwt");
 
 
-rute.get("/",async(req,res) => {
+rute.get("/",verifyToken,async(req,res) => {
     try{
         const userId = req.user ? req.user._id : null;
 
