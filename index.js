@@ -33,8 +33,4 @@ app.use("/beranda", BerandaRouting);
 // app.use("/images",GambarRouting)
 app.use("/user",userRoutes)
 
-app.listen(3001,() => {
-    console.log("Server sudah berjalan")
-})
-
 module.exports = app
