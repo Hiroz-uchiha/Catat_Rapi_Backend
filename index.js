@@ -8,7 +8,7 @@ app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 app.use(cors())
 const TodolistRouting = require("./Controller/TodolistRouting")
-const GambarRouting = require("./Controller/GambarRouting")
+// const GambarRouting = require("./Controller/GambarRouting")
 const BerandaRouting = require("./Controller/BerandaRouting")
 
 const path = require("path")
@@ -29,8 +29,8 @@ db.on("error",(err) => {
 
 app.use("/todo", TodolistRouting);
 app.use("/beranda", BerandaRouting);
-app.use("/uploads", express.static(path.join(__dirname,"uploads")))
-app.use("/images",GambarRouting)
+// app.use("/uploads", express.static(path.join(__dirname,"uploads")))
+// app.use("/images",GambarRouting)
 app.use("/user",userRoutes)
 
 app.listen(3001,() => {
