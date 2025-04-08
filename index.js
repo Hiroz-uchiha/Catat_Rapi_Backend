@@ -36,3 +36,5 @@ app.use("/user",userRoutes)
 app.listen(3001,() => {
     console.log("Server sudah berjalan")
 })
+
+module.exports = app
