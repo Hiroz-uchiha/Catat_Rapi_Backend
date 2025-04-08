@@ -19,6 +19,12 @@ const userRoutes = require("./Controller/Authorization/RegisterRouting")
 mongoose.connect(mongoString);
 const db = mongoose.connection;
 
+app.get('/', (req, res) => {
+    res.json({ message: 'API Sederhana dengan Express.js yang di-deploy di Vercel!' });
+  });
+  
+  // Route 
+  
 db.once("connnected",() => {
     console.log("Database Connected");
 })
